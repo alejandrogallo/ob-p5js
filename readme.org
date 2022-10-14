@@ -1,0 +1,251 @@
+* OB-P5JS
+#+macro: org-mode [[https://orgmode.org][=org-mode=]]
+#+macro: p5js [[https://p5js.org/][=p5js=]]
+
+You can go over to
+https://alejandrogallo.github.io/blog/posts/ob-p5js/
+to read a blog post about this project.
+
+I wanted to do some tests with the
+cool project {{{p5js}}} and I wanted to use it from {{{org-mode}}}.
+
+Regrettably, there is no package I could find that allows
+to use {{{p5js}}} in an {{{org-mode}}} document.
+What's worse however is that apparently you can't have two sketches in a
+single =html= file. Of course, to be fair, maybe this is my assessment
+of the library. As far as I can tell {{{p5js}}} can only deal with a
+single
+
+#+begin_src html
+<main></main>
+#+end_src
+
+tag. So I decided to let the good-old =<iframe></iframe>= save the day.
+But of course, I would like to simply write code and let =org-mode=
+handle the output automatically, i.e., I want to write
+
+#+begin_src org
+,#+begin_src p5js
+function setup() {
+  // ...
+}
+function draw() {
+  // ...
+}
+,#+end_src
+#+end_src
+
+sit back and enjoy my interactive =html= document.
+So you have already seen the eye candy at the beginning of the document,
+and you can do everything that {{{p5js}}} can, which is
+trivially use =WEBGL=
+
+#+begin_src p5js :height 220 :center t
+function setup() {
+  createCanvas(500, 200, WEBGL);
+}
+function draw() {
+  background(255);
+  push();
+  ambientLight(mouseX);
+  normalMaterial();
+  rotateZ(frameCount * 0.01);
+  rotateX(frameCount * 0.01);
+  rotateY(frameCount * 0.01);
+  box(70, 70, 70);
+  pop();
+}
+#+end_src
+
+#+RESULTS:
+#+begin_export html
+<center><iframe class="org-p5js"
+                     frameBorder='0'
+                     width="100%" height="200" 
+                     src="data:text/html;base64,CiAgPHNjcmlwdCBzcmM9Imh0dHBzOi8vY2RuLmpzZGVsaXZyLm5ldC9ucG0vcDVAMS40LjIvbGli
+L3A1LmpzIj48L3NjcmlwdD4KICA8c2NyaXB0PgogICAgZnVuY3Rpb24gc2V0dXAoKSB7CiAgY3Jl
+YXRlQ2FudmFzKDUwMCwgMjAwLCBXRUJHTCk7Cn0KCmZ1bmN0aW9uIGRyYXcoKSB7CiAgYmFja2dy
+b3VuZCgyNTApOwoKICBwdXNoKCk7CiAgcm90YXRlWihmcmFtZUNvdW50ICogMC4wMSk7CiAgcm90
+YXRlWChmcmFtZUNvdW50ICogMC4wMSk7CiAgcm90YXRlWShmcmFtZUNvdW50ICogMC4wMSk7CiAg
+Ym94KDcwLCA3MCwgNzApOwogIHBvcCgpOwoKfQoKICA8L3NjcmlwdD4KICA8bWFpbj48L21haW4+
+Cg==">
+                     </iframe></center>
+#+end_export
+
+where you can just write
+
+
+#+begin_src org
+,#+begin_src p5js :height 200 :center t
+function setup() {
+  createCanvas(500, 200, WEBGL);
+}
+function draw() {
+  background(255);
+  push();
+  normalMaterial();
+  rotateZ(frameCount * 0.01);
+  rotateX(frameCount * 0.01);
+  rotateY(frameCount * 0.01);
+  box(70, 70, 70);
+  pop();
+}
+,#+end_src
+#+end_src
+
+export to =html= and get that nice rotating cube.
+
+** Installing
+
+Below follows the implementation of the package in a literate
+programming fashion.  If you are interested to see how easy it is to
+implement these kinds of packages just read on.
+
+For the moment the development of this package
+happens over at https://github.com/alejandrogallo/ob-p5js.
+
+As of [2022-10-14 Fri] I am going to submit the package to =melpa=,
+otherwise you can just simply copy the =ob-p5js.el= file
+where you can require it.
+
+
+** Implementation
+:PROPERTIES:
+:header-args:emacs-lisp: :tangle ob-p5js.el
+:END:
+
+The defaults for every src block are given by
+
+#+begin_src emacs-lisp
+(defcustom org-babel-default-header-args:p5js
+  '((:exports . "results")
+    (:results . "verbatim html replace value")
+    (:eval . "t")
+    (:width . "100%"))
+  "P5js default header arguments")
+#+end_src
+
+where the most notable one is the =:results=,
+in that it creates an =html= export block.
+
+The custom block arguments are the =width= and =height=
+for the =iframe= where the {{{p5js}}} is embedded in,
+and also a =center= boolean field in order to insert
+*both* the =iframe= and the =main= tag inside an =html=
+=center= element.
+
+#+begin_src emacs-lisp
+(defcustom org-babel-header-args:p5js
+ '((width . :any)
+   (height . :any)
+   (center . :any))
+  "p5js-specific header arguments.")
+#+end_src
+
+We need to include the script in the =iframe= environment,
+and you can customize where you want to get your =p5js=
+from. By default it points to the default one from the website
+
+#+begin_src emacs-lisp
+(defcustom p5js-src "https://cdn.jsdelivr.net/npm/p5@1.4.2/lib/p5.js"
+  "The source of p5js")
+#+end_src
+
+and I also give every =iframe= the class =org-p5js= by default,
+so that you can customize it via =css= or =js=.
+
+#+begin_src emacs-lisp
+(defcustom p5js-iframe-class "org-p5js"
+  "Default class for iframes containing a p5js sketch")
+#+end_src
+
+The body of the input for the =iframe= is a minimal
+=html= document containing the src script for {{{p5js}}}
+and yours:
+
+#+begin_src emacs-lisp
+(defun p5js--create-sketch-body (params body)
+  (format "
+<html>
+<head>
+  <script src=%S></script>
+  <script>
+    %s
+  </script>
+</head>
+<body>
+  %s
+</body>
+</html>
+" p5js-src body (p5js--maybe-center params "<main></main>")))
+
+(defun p5js--maybe-center (params body)
+  (if (alist-get :center params)
+      (format "<center>%s</center>" body)
+    body))
+#+end_src
+
+Now an important aspect arises, how do we embed the
+=html= document containing the sketch into the =iframe=.
+From all my testing I found that including the whole script
+as a base64 encoding hunk works best, so this is the approach I took
+
+#+begin_src emacs-lisp
+(defun p5js--create-iframe (params body &optional width height)
+  (let ((sketch (base64-encode-string (p5js--create-sketch-body params body))))
+    (p5js--maybe-center params
+                        (format "<iframe class=\"%s\"
+                                         frameBorder='0'
+                                         %s
+                                         src=\"data:text/html;base64,%s\">
+                                         </iframe>"
+                                p5js-iframe-class
+                                (concat (if width
+                                            (format "width=\"%s\" " width)
+                                          "")
+                                        (if height
+                                            (format "height=\"%s\" " height)
+                                          ""))
+                                sketch))))
+#+end_src
+
+#+RESULTS:
+: p5js--create-iframe
+
+Last but not least, comes the part that tells =org-babel=
+how to execute =p5js= blocks, which entails simply defining
+a function prefixed by =orb-babel-execute= with the name of the
+src block.
+
+#+begin_src emacs-lisp
+(defun org-babel-execute:p5js (body params)
+  (let ((width (alist-get :width params))
+        (height (alist-get :height params)))
+    (p5js--create-iframe params body width height)))
+#+end_src
+
+And we want to inherit all the javascript goodness
+when working in =p5js= src blocks, this is
+
+#+begin_src emacs-lisp
+(define-derived-mode p5js-mode
+    js-mode "p5js"
+    "Major mode for p5js")
+
+(provide 'ob-p5js)
+#+end_src
+
+** Conclusion
+
+And this is pretty much everything there is to it.
+I hope you have some more motivation to use it in your
+blog posts and provide interesting content to the community
+and to you.
+
+For the future I would like to add some autocompletion
+or documentation checking for the mode, that would
+make the whole experience a little bit more painless.
+
+** References
+
+- The example sketches are adapted from [[https://p5js.org/examples/][examples | p5.js]].
