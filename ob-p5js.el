@@ -11,7 +11,7 @@
 
 ;; Author: Alejandro Gallo <aamsgallo@gmail.com>
 ;; Version: 1.0
-;; Package-Requires: ((emacs "24.4"))
+;; Package-Requires: ((emacs "25.1"))
 ;; Keywords: javascript, graphics, multimedia, p5js, processing
 ;; URL: https://github.com/alejandrogallo/p5js
 
@@ -69,7 +69,7 @@
 
 
 ;; [[file:readme.org::*Implementation][Implementation:4]]
-(defcustom p5js-src "https://cdn.jsdelivr.net/npm/p5@1.4.2/lib/p5.js"
+(defcustom ob-p5js-src "https://cdn.jsdelivr.net/npm/p5@1.4.2/lib/p5.js"
   "The source of p5js."
   :type 'string)
 ;; Implementation:4 ends here
@@ -81,7 +81,7 @@
 
 
 ;; [[file:readme.org::*Implementation][Implementation:5]]
-(defcustom p5js-iframe-class "org-p5js"
+(defcustom ob-p5js-iframe-class "org-p5js"
   "Default class for iframes containing a p5js sketch.")
 ;; Implementation:5 ends here
 
@@ -93,7 +93,7 @@
 
 
 ;; [[file:readme.org::*Implementation][Implementation:6]]
-(defun p5js--create-sketch-body (params body)
+(defun ob-p5js--create-sketch-body (params body)
   "Create the main body for the iframe content.
 
    PARAMS contains the parameters of the src block.
@@ -110,9 +110,9 @@
   %s
 </body>
 </html>
-" p5js-src body (p5js--maybe-center params "<main></main>")))
+" ob-p5js-src body (ob-p5js--maybe-center params "<main></main>")))
 
-(defun p5js--maybe-center (params body)
+(defun ob-p5js--maybe-center (params body)
   "Center the content whenever params wants it.
 
    PARAMS contains the parameters of the src block.
@@ -131,21 +131,21 @@
 
 
 ;; [[file:readme.org::*Implementation][Implementation:7]]
-(defun p5js--create-iframe (params body &optional width height)
+(defun ob-p5js--create-iframe (params body &optional width height)
   "Create iframe by encoding base64 the sketch in body.
 
    PARAMS contains the parameters of the src block.
    BODY contains the sketch.
    WIDTH is a string containing an html-valid width.
    HEIGHT is a string containing an html-valid height."
-  (let ((sketch (base64-encode-string (p5js--create-sketch-body params body))))
-    (p5js--maybe-center params
+  (let ((sketch (base64-encode-string (ob-p5js--create-sketch-body params body))))
+    (ob-p5js--maybe-center params
                         (format "<iframe class=\"%s\"
                                          frameBorder='0'
                                          %s
                                          src=\"data:text/html;base64,%s\">
                                          </iframe>"
-                                p5js-iframe-class
+                                ob-p5js-iframe-class
                                 (concat (if width
                                             (format "width=\"%s\" " width)
                                           "")
@@ -158,7 +158,7 @@
 
 
 ;; #+RESULTS:
-;; : p5js--create-iframe
+;; : ob-p5js--create-iframe
 
 ;; Last but not least, comes the part that tells =org-babel=
 ;; how to execute =p5js= blocks, which entails simply defining
@@ -174,7 +174,7 @@
    BODY contains the sketch."
   (let ((width (alist-get :width params))
         (height (alist-get :height params)))
-    (p5js--create-iframe params body width height)))
+    (ob-p5js--create-iframe params body width height)))
 ;; Implementation:8 ends here
 
 

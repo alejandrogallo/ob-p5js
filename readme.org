@@ -121,7 +121,7 @@ where you can require it.
 
 ;; Author: Alejandro Gallo <aamsgallo@gmail.com>
 ;; Version: 1.0
-;; Package-Requires: ((emacs "24.4"))
+;; Package-Requires: ((emacs "25.1"))
 ;; Keywords: javascript, graphics, multimedia, p5js, processing
 ;; URL: https://github.com/alejandrogallo/p5js
 
@@ -170,7 +170,7 @@ and you can customize where you want to get your =p5js=
 from. By default it points to the default one from the website
 
 #+begin_src emacs-lisp
-(defcustom p5js-src "https://cdn.jsdelivr.net/npm/p5@1.4.2/lib/p5.js"
+(defcustom ob-p5js-src "https://cdn.jsdelivr.net/npm/p5@1.4.2/lib/p5.js"
   "The source of p5js."
   :type 'string)
 #+end_src
@@ -179,7 +179,7 @@ and I also give every =iframe= the class =org-p5js= by default,
 so that you can customize it via =css= or =js=.
 
 #+begin_src emacs-lisp
-(defcustom p5js-iframe-class "org-p5js"
+(defcustom ob-p5js-iframe-class "org-p5js"
   "Default class for iframes containing a p5js sketch.")
 #+end_src
 
@@ -188,7 +188,7 @@ The body of the input for the =iframe= is a minimal
 and yours:
 
 #+begin_src emacs-lisp
-(defun p5js--create-sketch-body (params body)
+(defun ob-p5js--create-sketch-body (params body)
   "Create the main body for the iframe content.
 
    PARAMS contains the parameters of the src block.
@@ -205,9 +205,9 @@ and yours:
   %s
 </body>
 </html>
-" p5js-src body (p5js--maybe-center params "<main></main>")))
+" ob-p5js-src body (ob-p5js--maybe-center params "<main></main>")))
 
-(defun p5js--maybe-center (params body)
+(defun ob-p5js--maybe-center (params body)
   "Center the content whenever params wants it.
 
    PARAMS contains the parameters of the src block.
@@ -223,21 +223,21 @@ From all my testing I found that including the whole script
 as a base64 encoding hunk works best, so this is the approach I took
 
 #+begin_src emacs-lisp
-(defun p5js--create-iframe (params body &optional width height)
+(defun ob-p5js--create-iframe (params body &optional width height)
   "Create iframe by encoding base64 the sketch in body.
 
    PARAMS contains the parameters of the src block.
    BODY contains the sketch.
    WIDTH is a string containing an html-valid width.
    HEIGHT is a string containing an html-valid height."
-  (let ((sketch (base64-encode-string (p5js--create-sketch-body params body))))
-    (p5js--maybe-center params
+  (let ((sketch (base64-encode-string (ob-p5js--create-sketch-body params body))))
+    (ob-p5js--maybe-center params
                         (format "<iframe class=\"%s\"
                                          frameBorder='0'
                                          %s
                                          src=\"data:text/html;base64,%s\">
                                          </iframe>"
-                                p5js-iframe-class
+                                ob-p5js-iframe-class
                                 (concat (if width
                                             (format "width=\"%s\" " width)
                                           "")
@@ -263,7 +263,7 @@ src block.
    BODY contains the sketch."
   (let ((width (alist-get :width params))
         (height (alist-get :height params)))
-    (p5js--create-iframe params body width height)))
+    (ob-p5js--create-iframe params body width height)))
 #+end_src
 
 And we want to inherit all the javascript goodness
