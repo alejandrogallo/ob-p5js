@@ -111,7 +111,7 @@ where you can require it.
 
 ** Implementation
 :PROPERTIES:
-:header-args:emacs-lisp: :tangle ob-p5js.el
+:header-args:emacs-lisp: :tangle ob-p5js.el :comments both
 :END:
 
 #+begin_src emacs-lisp
@@ -125,14 +125,11 @@ where you can require it.
 ;; Keywords: javascript, graphics, multimedia, p5js, processing
 ;; URL: https://github.com/alejandrogallo/p5js
 
-…
-
 ;;; Commentary:
 
 ;; This package provides a minor mode for p5js
 ;; and a way to export javascript code to an iframe
 ;; containing a p5js ready environment to export to html.
-
 #+end_src
 
 
@@ -141,12 +138,14 @@ The defaults for every src block are given by
 #+begin_src emacs-lisp
 (require 'ob)
 
+;;; Code:
+
 (defcustom org-babel-default-header-args:p5js
   '((:exports . "results")
     (:results . "verbatim html replace value")
     (:eval . "t")
     (:width . "100%"))
-  "P5js default header arguments")
+  "P5js default header arguments.")
 #+end_src
 
 where the most notable one is the =:results=,
@@ -163,7 +162,7 @@ and also a =center= boolean field in order to insert
  '((width . :any)
    (height . :any)
    (center . :any))
-  "p5js-specific header arguments.")
+  "Header arguments specific to p5js.")
 #+end_src
 
 We need to include the script in the =iframe= environment,
@@ -172,7 +171,8 @@ from. By default it points to the default one from the website
 
 #+begin_src emacs-lisp
 (defcustom p5js-src "https://cdn.jsdelivr.net/npm/p5@1.4.2/lib/p5.js"
-  "The source of p5js")
+  "The source of p5js."
+  :type 'string)
 #+end_src
 
 and I also give every =iframe= the class =org-p5js= by default,
@@ -180,7 +180,7 @@ so that you can customize it via =css= or =js=.
 
 #+begin_src emacs-lisp
 (defcustom p5js-iframe-class "org-p5js"
-  "Default class for iframes containing a p5js sketch")
+  "Default class for iframes containing a p5js sketch.")
 #+end_src
 
 The body of the input for the =iframe= is a minimal
@@ -189,6 +189,10 @@ and yours:
 
 #+begin_src emacs-lisp
 (defun p5js--create-sketch-body (params body)
+  "Create the main body for the iframe content.
+
+   PARAMS contains the parameters of the src block.
+   BODY contains the sketch."
   (format "
 <html>
 <head>
@@ -204,6 +208,10 @@ and yours:
 " p5js-src body (p5js--maybe-center params "<main></main>")))
 
 (defun p5js--maybe-center (params body)
+  "Center the content whenever params wants it.
+
+   PARAMS contains the parameters of the src block.
+   BODY contains the sketch."
   (if (alist-get :center params)
       (format "<center>%s</center>" body)
     body))
@@ -216,6 +224,12 @@ as a base64 encoding hunk works best, so this is the approach I took
 
 #+begin_src emacs-lisp
 (defun p5js--create-iframe (params body &optional width height)
+  "Create iframe by encoding base64 the sketch in body.
+
+   PARAMS contains the parameters of the src block.
+   BODY contains the sketch.
+   WIDTH is a string containing an html-valid width.
+   HEIGHT is a string containing an html-valid height."
   (let ((sketch (base64-encode-string (p5js--create-sketch-body params body))))
     (p5js--maybe-center params
                         (format "<iframe class=\"%s\"
@@ -243,6 +257,10 @@ src block.
 
 #+begin_src emacs-lisp
 (defun org-babel-execute:p5js (body params)
+  "Execute a p5js src block.
+
+   PARAMS contains the parameters of the src block.
+   BODY contains the sketch."
   (let ((width (alist-get :width params))
         (height (alist-get :height params)))
     (p5js--create-iframe params body width height)))
@@ -254,9 +272,10 @@ when working in =p5js= src blocks, this is
 #+begin_src emacs-lisp
 (define-derived-mode p5js-mode
     js-mode "p5js"
-    "Major mode for p5js")
+    "Major mode for p5js.")
 
 (provide 'ob-p5js)
+;;; ob-p5js.el ends here
 #+end_src
 
 ** Conclusion
