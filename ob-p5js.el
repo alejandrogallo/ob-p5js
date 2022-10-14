@@ -1,3 +1,21 @@
+;;; ob-p5js.el --- org-babel support for p5js
+
+;; Copyright (C) 2022 Free Software Foundation, Inc.
+
+;; Author: Alejandro Gallo <aamsgallo@gmail.com>
+;; Version: 1.0
+;; Package-Requires: ((emacs "24.4"))
+;; Keywords: javascript, graphics, multimedia, p5js, processing
+;; URL: https://github.com/alejandrogallo/p5js
+
+…
+
+;;; Commentary:
+
+;; This package provides a minor mode for p5js
+;; and a way to export javascript code to an iframe
+;; containing a p5js ready environment to export to html.
+
 (require 'ob)
 
 (defcustom org-babel-default-header-args:p5js
