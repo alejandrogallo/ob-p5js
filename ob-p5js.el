@@ -1,3 +1,5 @@
+(require 'ob)
+
 (defcustom org-babel-default-header-args:p5js
   '((:exports . "results")
     (:results . "verbatim html replace value")
