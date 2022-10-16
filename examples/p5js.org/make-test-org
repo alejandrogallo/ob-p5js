@@ -1,0 +1,44 @@
+#!/usr/bin/env sh
+
+base=website/src/data/examples/en/
+sketches=(
+$(find $base -name '*.js')
+)
+
+last_titles=()
+for sketch in ${sketches[@]}; do
+  titles=(
+    $(echo `dirname $sketch` `basename $sketch` |
+      sed "s_${base}__" |
+      sed "s_/_ _g; s/^. //" |
+      sed "s/[0-9]\+_//g" |
+      sed "s/[.]js//")
+  )
+  let level=0
+  for title in ${titles[@]}; do
+
+    if [[ "${titles[level]}" != "${last_titles[level]}" ]]; then
+      for i in `seq $((level + 1))`; do
+        printf "*"
+      done
+      echo " $title" | sed "s/_/ /g"
+    fi
+    let level+=1
+
+  done
+
+    cat <<EOF
+
+#+begin_src p5js :width "100%" :height "450" :center t :exports both
+$(cat $sketch | sed "/^[*]/d" | iconv -t utf8 | tr -d "“" | tr -d "”")
+#+end_src
+
+EOF
+
+
+
+
+  last_titles=(${titles[@]})
+
+done
+
