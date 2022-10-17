@@ -1,11 +1,4 @@
-;; Implementation
-;; :PROPERTIES:
-;; :header-args:emacs-lisp: :tangle ob-p5js.el :comments both
-;; :END:
-
-
-;; [[file:readme.org::*Implementation][Implementation:1]]
-;;; ob-p5js.el --- org-babel support for p5js
+;;; ob-p5js.el --- Support for p5js in org-babel
 
 ;; Copyright (C) 2022 Free Software Foundation, Inc.
 
@@ -20,26 +13,27 @@
 ;; This package provides a minor mode for p5js
 ;; and a way to export javascript code to an iframe
 ;; containing a p5js ready environment to export to html.
-;; Implementation:1 ends here
 
+;; [[file:readme.org::*Implementation][Implementation:2]]
+(require 'ob)
+
+;;; Code:
+;; Implementation:2 ends here
 
 
 
 ;; The defaults for every src block are given by
 
 
-;; [[file:readme.org::*Implementation][Implementation:2]]
-(require 'ob)
-
-;;; Code:
-
+;; [[file:readme.org::*Implementation][Implementation:3]]
 (defcustom org-babel-default-header-args:p5js
   '((:exports . "results")
     (:results . "verbatim html replace value")
     (:eval . "t")
     (:width . "100%"))
-  "P5js default header arguments.")
-;; Implementation:2 ends here
+  "P5js default header arguments."
+  :group 'org-babel)
+;; Implementation:3 ends here
 
 
 
@@ -53,13 +47,33 @@
 ;; =center= element.
 
 
-;; [[file:readme.org::*Implementation][Implementation:3]]
+;; [[file:readme.org::*Implementation][Implementation:4]]
 (defcustom org-babel-header-args:p5js
  '((width . :any)
    (height . :any)
    (center . :any))
-  "Header arguments specific to p5js.")
-;; Implementation:3 ends here
+  "Header arguments specific to p5js."
+  :group 'org-babel)
+;; Implementation:4 ends here
+
+
+
+;; We also need to set and define the mode that should be used
+;; for the src-blocks, in this case probably one would like to
+;; use the =js= mode, but in the future one might want
+;; to use a dedicated =p5js= mode, so we can make it configurable
+
+
+;; [[file:readme.org::*Implementation][Implementation:5]]
+(defcustom ob-p5js-mode
+  'js
+  "The major mode that should be used in the src blocks."
+  :type '(symbol :tag "Mode name")
+  :group 'org-babel)
+
+(add-to-list 'org-src-lang-modes `("p5js" . ,ob-p5js-mode))
+;; Implementation:5 ends here
+
 
 
 
@@ -68,11 +82,11 @@
 ;; from. By default it points to the default one from the website
 
 
-;; [[file:readme.org::*Implementation][Implementation:4]]
+;; [[file:readme.org::*Implementation][Implementation:6]]
 (defcustom ob-p5js-src "https://cdn.jsdelivr.net/npm/p5@1.4.2/lib/p5.js"
   "The source of p5js."
   :type 'string)
-;; Implementation:4 ends here
+;; Implementation:6 ends here
 
 
 
@@ -80,10 +94,10 @@
 ;; so that you can customize it via =css= or =js=.
 
 
-;; [[file:readme.org::*Implementation][Implementation:5]]
+;; [[file:readme.org::*Implementation][Implementation:7]]
 (defcustom ob-p5js-iframe-class "org-p5js"
   "Default class for iframes containing a p5js sketch.")
-;; Implementation:5 ends here
+;; Implementation:7 ends here
 
 
 
@@ -92,7 +106,7 @@
 ;; and yours:
 
 
-;; [[file:readme.org::*Implementation][Implementation:6]]
+;; [[file:readme.org::*Implementation][Implementation:8]]
 (defun ob-p5js--create-sketch-body (params body)
   "Create the main body for the iframe content.
 
@@ -120,7 +134,7 @@
   (if (alist-get :center params)
       (format "<center>%s</center>" body)
     body))
-;; Implementation:6 ends here
+;; Implementation:8 ends here
 
 
 
@@ -130,7 +144,7 @@
 ;; as a base64 encoding hunk works best, so this is the approach I took
 
 
-;; [[file:readme.org::*Implementation][Implementation:7]]
+;; [[file:readme.org::*Implementation][Implementation:9]]
 (defun ob-p5js--create-iframe (params body &optional width height)
   "Create iframe by encoding base64 the sketch in body.
 
@@ -153,12 +167,12 @@
                                             (format "height=\"%s\" " height)
                                           ""))
                                 sketch))))
-;; Implementation:7 ends here
+;; Implementation:9 ends here
 
 
 
 ;; #+RESULTS:
-;; : ob-p5js--create-iframe
+;; : p5js--create-iframe
 
 ;; Last but not least, comes the part that tells =org-babel=
 ;; how to execute =p5js= blocks, which entails simply defining
@@ -166,7 +180,7 @@
 ;; src block.
 
 
-;; [[file:readme.org::*Implementation][Implementation:8]]
+;; [[file:readme.org::*Implementation][Implementation:10]]
 (defun org-babel-execute:p5js (body params)
   "Execute a p5js src block.
 
@@ -175,19 +189,15 @@
   (let ((width (alist-get :width params))
         (height (alist-get :height params)))
     (ob-p5js--create-iframe params body width height)))
-;; Implementation:8 ends here
+;; Implementation:10 ends here
 
 
 
-;; And we want to inherit all the javascript goodness
-;; when working in =p5js= src blocks, this is
+
+;; And just provide the package:
 
 
-;; [[file:readme.org::*Implementation][Implementation:9]]
-(define-derived-mode p5js-mode
-    js-mode "p5js"
-    "Major mode for p5js.")
-
+;; [[file:readme.org::*Implementation][Implementation:11]]
 (provide 'ob-p5js)
 ;;; ob-p5js.el ends here
-;; Implementation:9 ends here
+;; Implementation:11 ends here

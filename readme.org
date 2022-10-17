@@ -114,8 +114,8 @@ where you can require it.
 :header-args:emacs-lisp: :tangle ob-p5js.el :comments both
 :END:
 
-#+begin_src emacs-lisp
-;;; ob-p5js.el --- org-babel support for p5js
+#+begin_src emacs-lisp :comments no 
+;;; ob-p5js.el --- Support for p5js in org-babel
 
 ;; Copyright (C) 2022 Free Software Foundation, Inc.
 
@@ -133,19 +133,22 @@ where you can require it.
 #+end_src
 
 
-The defaults for every src block are given by
-
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :exports none 
 (require 'ob)
 
 ;;; Code:
+#+end_src
 
+The defaults for every src block are given by
+
+#+begin_src emacs-lisp
 (defcustom org-babel-default-header-args:p5js
   '((:exports . "results")
     (:results . "verbatim html replace value")
     (:eval . "t")
     (:width . "100%"))
-  "P5js default header arguments.")
+  "P5js default header arguments."
+  :group 'org-babel)
 #+end_src
 
 where the most notable one is the =:results=,
@@ -162,8 +165,25 @@ and also a =center= boolean field in order to insert
  '((width . :any)
    (height . :any)
    (center . :any))
-  "Header arguments specific to p5js.")
+  "Header arguments specific to p5js."
+  :group 'org-babel)
 #+end_src
+
+We also need to set and define the mode that should be used
+for the src-blocks, in this case probably one would like to
+use the =js= mode, but in the future one might want
+to use a dedicated =p5js= mode, so we can make it configurable
+
+#+begin_src emacs-lisp
+(defcustom ob-p5js-mode
+  'js
+  "The major mode that should be used in the src blocks."
+  :type '(symbol :tag "Mode name")
+  :group 'org-babel)
+
+(add-to-list 'org-src-lang-modes `("p5js" . ,ob-p5js-mode))
+#+end_src
+
 
 We need to include the script in the =iframe= environment,
 and you can customize where you want to get your =p5js=
@@ -230,7 +250,9 @@ as a base64 encoding hunk works best, so this is the approach I took
    BODY contains the sketch.
    WIDTH is a string containing an html-valid width.
    HEIGHT is a string containing an html-valid height."
-  (let ((sketch (base64-encode-string (ob-p5js--create-sketch-body params body))))
+  (let ((sketch (base64-encode-string (ob-p5js--create-sketch-body params
+                                                                   body)
+                                      t)))
     (ob-p5js--maybe-center params
                         (format "<iframe class=\"%s\"
                                          frameBorder='0'
@@ -266,14 +288,10 @@ src block.
     (ob-p5js--create-iframe params body width height)))
 #+end_src
 
-And we want to inherit all the javascript goodness
-when working in =p5js= src blocks, this is
+
+And just provide the package:
 
 #+begin_src emacs-lisp
-(define-derived-mode p5js-mode
-    js-mode "p5js"
-    "Major mode for p5js.")
-
 (provide 'ob-p5js)
 ;;; ob-p5js.el ends here
 #+end_src
