@@ -139,6 +139,16 @@ where you can require it.
 ;;; Code:
 #+end_src
 
+All the options for this package are reachable through the group =ob-p5js=
+
+#+begin_src emacs-lisp
+(defgroup ob-p5js nil
+  "Options for org-babel p5.js package."
+  :prefix "ob-p5js-"
+  :group 'org-babel)
+#+end_src
+
+
 The defaults for every src block are given by
 
 #+begin_src emacs-lisp
@@ -148,7 +158,7 @@ The defaults for every src block are given by
     (:eval . "t")
     (:width . "100%"))
   "P5js default header arguments."
-  :group 'org-babel)
+  :group 'ob-p5js)
 #+end_src
 
 where the most notable one is the =:results=,
@@ -166,7 +176,7 @@ and also a =center= boolean field in order to insert
    (height . :any)
    (center . :any))
   "Header arguments specific to p5js."
-  :group 'org-babel)
+  :group 'ob-p5js)
 #+end_src
 
 We also need to set and define the mode that should be used
@@ -179,7 +189,7 @@ to use a dedicated =p5js= mode, so we can make it configurable
   'js
   "The major mode that should be used in the src blocks."
   :type '(symbol :tag "Mode name")
-  :group 'org-babel)
+  :group 'ob-p5js)
 
 (add-to-list 'org-src-lang-modes `("p5js" . ,ob-p5js-mode))
 #+end_src
@@ -192,7 +202,8 @@ from. By default it points to the default one from the website
 #+begin_src emacs-lisp
 (defcustom ob-p5js-src "https://cdn.jsdelivr.net/npm/p5@1.4.2/lib/p5.js"
   "The source of p5js."
-  :type 'string)
+  :type 'string
+  :group 'ob-p5js)
 #+end_src
 
 and I also give every =iframe= the class =org-p5js= by default,
@@ -200,7 +211,9 @@ so that you can customize it via =css= or =js=.
 
 #+begin_src emacs-lisp
 (defcustom ob-p5js-iframe-class "org-p5js"
-  "Default class for iframes containing a p5js sketch.")
+  "Default class for iframes containing a p5js sketch."
+  :type 'string
+  :group 'ob-p5js)
 #+end_src
 
 The body of the input for the =iframe= is a minimal

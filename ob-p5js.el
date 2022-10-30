@@ -22,18 +22,31 @@
 
 
 
-;; The defaults for every src block are given by
+;; All the options for this package are reachable through the group =ob-p5js=
 
 
 ;; [[file:readme.org::*Implementation][Implementation:3]]
+(defgroup ob-p5js nil
+  "Options for org-babel p5.js package."
+  :prefix "ob-p5js-"
+  :group 'org-babel)
+;; Implementation:3 ends here
+
+
+
+
+;; The defaults for every src block are given by
+
+
+;; [[file:readme.org::*Implementation][Implementation:4]]
 (defcustom org-babel-default-header-args:p5js
   '((:exports . "results")
     (:results . "verbatim html replace value")
     (:eval . "t")
     (:width . "100%"))
   "P5js default header arguments."
-  :group 'org-babel)
-;; Implementation:3 ends here
+  :group 'ob-p5js)
+;; Implementation:4 ends here
 
 
 
@@ -47,14 +60,14 @@
 ;; =center= element.
 
 
-;; [[file:readme.org::*Implementation][Implementation:4]]
+;; [[file:readme.org::*Implementation][Implementation:5]]
 (defcustom org-babel-header-args:p5js
  '((width . :any)
    (height . :any)
    (center . :any))
   "Header arguments specific to p5js."
-  :group 'org-babel)
-;; Implementation:4 ends here
+  :group 'ob-p5js)
+;; Implementation:5 ends here
 
 
 
@@ -64,15 +77,15 @@
 ;; to use a dedicated =p5js= mode, so we can make it configurable
 
 
-;; [[file:readme.org::*Implementation][Implementation:5]]
+;; [[file:readme.org::*Implementation][Implementation:6]]
 (defcustom ob-p5js-mode
   'js
   "The major mode that should be used in the src blocks."
   :type '(symbol :tag "Mode name")
-  :group 'org-babel)
+  :group 'ob-p5js)
 
 (add-to-list 'org-src-lang-modes `("p5js" . ,ob-p5js-mode))
-;; Implementation:5 ends here
+;; Implementation:6 ends here
 
 
 
@@ -82,11 +95,12 @@
 ;; from. By default it points to the default one from the website
 
 
-;; [[file:readme.org::*Implementation][Implementation:6]]
+;; [[file:readme.org::*Implementation][Implementation:7]]
 (defcustom ob-p5js-src "https://cdn.jsdelivr.net/npm/p5@1.4.2/lib/p5.js"
   "The source of p5js."
-  :type 'string)
-;; Implementation:6 ends here
+  :type 'string
+  :group 'ob-p5js)
+;; Implementation:7 ends here
 
 
 
@@ -94,10 +108,12 @@
 ;; so that you can customize it via =css= or =js=.
 
 
-;; [[file:readme.org::*Implementation][Implementation:7]]
+;; [[file:readme.org::*Implementation][Implementation:8]]
 (defcustom ob-p5js-iframe-class "org-p5js"
-  "Default class for iframes containing a p5js sketch.")
-;; Implementation:7 ends here
+  "Default class for iframes containing a p5js sketch."
+  :type 'string
+  :group 'ob-p5js)
+;; Implementation:8 ends here
 
 
 
@@ -106,7 +122,7 @@
 ;; and yours:
 
 
-;; [[file:readme.org::*Implementation][Implementation:8]]
+;; [[file:readme.org::*Implementation][Implementation:9]]
 (defun ob-p5js--create-sketch-body (params body)
   "Create the main body for the iframe content.
 
@@ -134,7 +150,7 @@
   (if (alist-get :center params)
       (format "<center>%s</center>" body)
     body))
-;; Implementation:8 ends here
+;; Implementation:9 ends here
 
 
 
@@ -144,7 +160,7 @@
 ;; as a base64 encoding hunk works best, so this is the approach I took
 
 
-;; [[file:readme.org::*Implementation][Implementation:9]]
+;; [[file:readme.org::*Implementation][Implementation:10]]
 (defun ob-p5js--create-iframe (params body &optional width height)
   "Create iframe by encoding base64 the sketch in body.
 
@@ -152,7 +168,9 @@
    BODY contains the sketch.
    WIDTH is a string containing an html-valid width.
    HEIGHT is a string containing an html-valid height."
-  (let ((sketch (base64-encode-string (ob-p5js--create-sketch-body params body))))
+  (let ((sketch (base64-encode-string (ob-p5js--create-sketch-body params
+                                                                   body)
+                                      t)))
     (ob-p5js--maybe-center params
                         (format "<iframe class=\"%s\"
                                          frameBorder='0'
@@ -167,7 +185,7 @@
                                             (format "height=\"%s\" " height)
                                           ""))
                                 sketch))))
-;; Implementation:9 ends here
+;; Implementation:10 ends here
 
 
 
@@ -180,7 +198,7 @@
 ;; src block.
 
 
-;; [[file:readme.org::*Implementation][Implementation:10]]
+;; [[file:readme.org::*Implementation][Implementation:11]]
 (defun org-babel-execute:p5js (body params)
   "Execute a p5js src block.
 
@@ -189,7 +207,7 @@
   (let ((width (alist-get :width params))
         (height (alist-get :height params)))
     (ob-p5js--create-iframe params body width height)))
-;; Implementation:10 ends here
+;; Implementation:11 ends here
 
 
 
@@ -197,7 +215,7 @@
 ;; And just provide the package:
 
 
-;; [[file:readme.org::*Implementation][Implementation:11]]
+;; [[file:readme.org::*Implementation][Implementation:12]]
 (provide 'ob-p5js)
 ;;; ob-p5js.el ends here
-;; Implementation:11 ends here
+;; Implementation:12 ends here
