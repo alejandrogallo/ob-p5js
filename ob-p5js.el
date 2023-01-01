@@ -38,13 +38,11 @@
 
 
 ;; [[file:readme.org::*Implementation][Implementation:4]]
-(defcustom org-babel-default-header-args:p5js
+(defvar org-babel-default-header-args:p5js
   '((:exports . "results")
     (:results . "verbatim html replace value")
     (:eval . "t")
-    (:width . "100%"))
-  "P5js default header arguments."
-  :group 'ob-p5js)
+    (:width . "100%")))
 ;; Implementation:4 ends here
 
 
@@ -60,12 +58,11 @@
 
 
 ;; [[file:readme.org::*Implementation][Implementation:5]]
-(defcustom org-babel-header-args:p5js
+(defconst org-babel-header-args:p5js
  '((width . :any)
    (height . :any)
    (center . :any))
-  "Header arguments specific to p5js."
-  :group 'ob-p5js)
+  "Header arguments specific to p5js.")
 ;; Implementation:5 ends here
 
 

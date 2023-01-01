@@ -151,13 +151,11 @@ All the options for this package are reachable through the group =ob-p5js=
 The defaults for every src block are given by
 
 #+begin_src emacs-lisp
-(defcustom org-babel-default-header-args:p5js
+(defvar org-babel-default-header-args:p5js
   '((:exports . "results")
     (:results . "verbatim html replace value")
     (:eval . "t")
-    (:width . "100%"))
-  "P5js default header arguments."
-  :group 'ob-p5js)
+    (:width . "100%")))
 #+end_src
 
 where the most notable one is the =:results=,
@@ -170,12 +168,11 @@ and also a =center= boolean field in order to insert
 =center= element.
 
 #+begin_src emacs-lisp
-(defcustom org-babel-header-args:p5js
+(defconst org-babel-header-args:p5js
  '((width . :any)
    (height . :any)
    (center . :any))
-  "Header arguments specific to p5js."
-  :group 'ob-p5js)
+  "Header arguments specific to p5js.")
 #+end_src
 
 We also need to set and define the mode that should be used
