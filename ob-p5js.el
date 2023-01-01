@@ -1,11 +1,10 @@
 ;;; ob-p5js.el --- Support for p5js in org-babel
 
-;; Copyright (C) 2022 Free Software Foundation, Inc.
-
+;; Licence: MIT
 ;; Author: Alejandro Gallo <aamsgallo@gmail.com>
 ;; Version: 1.0
 ;; Package-Requires: ((emacs "25.1"))
-;; Keywords: javascript, graphics, multimedia, p5js, processing
+;; Keywords: javascript, graphics, multimedia, p5js, processing, org-babel
 ;; URL: https://github.com/alejandrogallo/p5js
 
 ;;; Commentary:
