@@ -2,6 +2,9 @@
 #+macro: org-mode [[https://orgmode.org][=org-mode=]]
 #+macro: p5js [[https://p5js.org/][=p5js=]]
 
+[[https://melpa.org/#/ob-p5js][file:https://melpa.org/packages/ob-p5js-badge.svg]]
+
+
 You can go over to
 https://alejandrogallo.github.io/blog/posts/ob-p5js/
 to read a blog post about this project.
