@@ -98,6 +98,29 @@ function draw() {
 
 export to =html= and get that nice rotating cube.
 
+If you prefer storing the result in a self-contained html-file, you can simply do
+
+#+begin_src org
+,#+begin_src p5js :height 200 :center t :file ./cube.html :results file raw replace value
+function setup() {
+  createCanvas(500, 200, WEBGL);
+}
+function draw() {
+  background(255);
+  push();
+  normalMaterial();
+  rotateZ(frameCount * 0.01);
+  rotateX(frameCount * 0.01);
+  rotateY(frameCount * 0.01);
+  box(70, 70, 70);
+  pop();
+}
+,#+end_src
+
+,#+RESULTS:
+[[file:./cube.html]]
+#+end_src
+
 ** Installing
 
 Below follows the implementation of the package in a literate
@@ -122,7 +145,7 @@ where you can require it.
 
 ;; SPDX-License-Identifier: MIT
 ;; Author: Alejandro Gallo <aamsgallo@gmail.com>
-;; Version: 1.0
+;; Version: 2.0
 ;; Package-Requires: ((emacs "25.1"))
 ;; Keywords: javascript, graphics, multimedia, p5js, processing, org-babel
 ;; URL: https://github.com/alejandrogallo/p5js
@@ -172,9 +195,10 @@ and also a =center= boolean field in order to insert
 
 #+begin_src emacs-lisp
 (defconst org-babel-header-args:p5js
- '((width . :any)
-   (height . :any)
-   (center . :any))
+  '((width . :any)
+    (height . :any)
+    (center . :any)
+    (file . :any))
   "Header arguments specific to p5js.")
 #+end_src
 
@@ -266,19 +290,19 @@ as a base64 encoding hunk works best, so this is the approach I took
                                                                    body)
                                       t)))
     (ob-p5js--maybe-center params
-                        (format "<iframe class=\"%s\"
+                           (format "<iframe class=\"%s\"
                                          frameBorder='0'
                                          %s
                                          src=\"data:text/html;base64,%s\">
                                          </iframe>"
-                                ob-p5js-iframe-class
-                                (concat (if width
-                                            (format "width=\"%s\" " width)
-                                          "")
-                                        (if height
-                                            (format "height=\"%s\" " height)
-                                          ""))
-                                sketch))))
+                                   ob-p5js-iframe-class
+                                   (concat (if width
+                                               (format "width=\"%s\" " width)
+                                             "")
+                                           (if height
+                                               (format "height=\"%s\" " height)
+                                             ""))
+                                   sketch))))
 #+end_src
 
 #+RESULTS:
@@ -296,8 +320,17 @@ src block.
    PARAMS contains the parameters of the src block.
    BODY contains the sketch."
   (let ((width (alist-get :width params))
-        (height (alist-get :height params)))
-    (ob-p5js--create-iframe params body width height)))
+        (height (alist-get :height params))
+        (file (alist-get :file params)))
+    (if file
+        (let ((html-body (ob-p5js--create-sketch-body params
+                                                      body)))
+          (setf (alist-get :result-params params)
+                (list "file" "raw" "replace" "value"))
+          (setf (alist-get :results params)
+                "file raw replace value")
+          html-body)
+      (ob-p5js--create-iframe params body width height))))
 #+end_src
 
 

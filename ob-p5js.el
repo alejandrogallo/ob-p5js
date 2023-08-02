@@ -2,7 +2,7 @@
 
 ;; SPDX-License-Identifier: MIT
 ;; Author: Alejandro Gallo <aamsgallo@gmail.com>
-;; Version: 1.0
+;; Version: 2.0
 ;; Package-Requires: ((emacs "25.1"))
 ;; Keywords: javascript, graphics, multimedia, p5js, processing, org-babel
 ;; URL: https://github.com/alejandrogallo/p5js
@@ -59,9 +59,10 @@
 
 ;; [[file:readme.org::*Implementation][Implementation:5]]
 (defconst org-babel-header-args:p5js
- '((width . :any)
-   (height . :any)
-   (center . :any))
+  '((width . :any)
+    (height . :any)
+    (center . :any)
+    (file . :any))
   "Header arguments specific to p5js.")
 ;; Implementation:5 ends here
 
@@ -168,19 +169,19 @@
                                                                    body)
                                       t)))
     (ob-p5js--maybe-center params
-                        (format "<iframe class=\"%s\"
+                           (format "<iframe class=\"%s\"
                                          frameBorder='0'
                                          %s
                                          src=\"data:text/html;base64,%s\">
                                          </iframe>"
-                                ob-p5js-iframe-class
-                                (concat (if width
-                                            (format "width=\"%s\" " width)
-                                          "")
-                                        (if height
-                                            (format "height=\"%s\" " height)
-                                          ""))
-                                sketch))))
+                                   ob-p5js-iframe-class
+                                   (concat (if width
+                                               (format "width=\"%s\" " width)
+                                             "")
+                                           (if height
+                                               (format "height=\"%s\" " height)
+                                             ""))
+                                   sketch))))
 ;; Implementation:10 ends here
 
 
@@ -201,8 +202,17 @@
    PARAMS contains the parameters of the src block.
    BODY contains the sketch."
   (let ((width (alist-get :width params))
-        (height (alist-get :height params)))
-    (ob-p5js--create-iframe params body width height)))
+        (height (alist-get :height params))
+        (file (alist-get :file params)))
+    (if file
+        (let ((html-body (ob-p5js--create-sketch-body params
+                                                      body)))
+          (setf (alist-get :result-params params)
+                (list "file" "raw" "replace" "value"))
+          (setf (alist-get :results params)
+                "file raw replace value")
+          html-body)
+      (ob-p5js--create-iframe params body width height))))
 ;; Implementation:11 ends here
 
 
